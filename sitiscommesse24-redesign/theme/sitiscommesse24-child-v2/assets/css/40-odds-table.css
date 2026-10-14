@@ -1,0 +1,40 @@
+/* Sotto i 900 px ogni riga diventa una card; sopra, tabella classica. */
+.odds-table { width: 100%; font-variant-numeric: tabular-nums; }
+.odds-table thead { display: none; }
+.odds-table, .odds-table tbody { display: block; }
+.odds-table tbody { display: grid; gap: var(--s-3); }
+.odds-table tr {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2) var(--s-3);
+  background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--r-lg);
+  padding: var(--s-4); box-shadow: var(--shadow-1);
+}
+.odds-table td { display: flex; flex-direction: column; gap: 2px; padding: 0; border: 0; }
+.odds-table td::before { content: attr(data-label); font-size: var(--fs-sm); color: var(--c-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
+.odds-table td.is-wide, .odds-table td.odds-table__bookmaker, .odds-table td.odds-table__cta { grid-column: 1 / -1; }
+.odds-table td.odds-table__cta::before { display: none; }
+.odds-table td.odds-table__bookmaker { flex-direction: row; align-items: center; gap: var(--s-3); }
+.odds-table__bookmaker::before { display: none; }
+.odds-table__logo { width: 48px; height: 48px; flex: none; object-fit: contain; border-radius: var(--r-sm); border: 1px solid var(--c-border); background: #fff; padding: 4px; }
+.odds-table__name { font-weight: 700; font-size: var(--fs-lg); }
+.odds-table__meta { font-size: var(--fs-sm); color: var(--c-text-muted); }
+.odd { display: inline-flex; align-items: center; justify-content: center; min-width: 56px; height: 40px; padding: 0 var(--s-3); border-radius: var(--r-sm); background: var(--c-bg); border: 1px solid var(--c-border); font-weight: 700; }
+.odd.is-best { background: var(--c-accent); color: #fff; border-color: var(--c-accent-700); }
+.odd.is-up { color: var(--c-accent-700); } .odd.is-down { color: var(--c-warn); }
+.odd__delta { font-size: var(--fs-sm); margin-left: 4px; }
+
+@media (min-width: 900px) {
+  .odds-table, .odds-table tbody { display: table; }
+  .odds-table tbody { display: table-row-group; }
+  .odds-table thead { display: table-header-group; position: sticky; top: var(--header-h); background: var(--c-surface); z-index: 1; }
+  .odds-table th { text-align: left; padding: var(--s-3) var(--s-4); font-size: var(--fs-sm); color: var(--c-text-muted); text-transform: uppercase; letter-spacing: .02em; border-bottom: 2px solid var(--c-border); }
+  .odds-table th.is-center, .odds-table td.is-center { text-align: center; }
+  .odds-table tr { display: table-row; background: transparent; border: 0; border-radius: 0; padding: 0; box-shadow: none; }
+  .odds-table tbody tr:nth-child(even) { background: var(--c-bg); }
+  .odds-table tbody tr:hover { background: var(--c-primary-100); }
+  .odds-table td { display: table-cell; padding: var(--s-3) var(--s-4); vertical-align: middle; border-bottom: 1px solid var(--c-border); }
+  .odds-table td::before { display: none; }
+  .odds-table td.odds-table__bookmaker { display: flex; }
+  .odds-table__cta { width: 1%; white-space: nowrap; }
+  .odds-table td.odds-table__bookmaker { min-width: 240px; }
+  .odds-table__name { white-space: nowrap; }
+}

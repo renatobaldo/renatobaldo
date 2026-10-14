@@ -1,0 +1,9 @@
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.hide-mobile { display: none; }
+.hide-desktop { display: block; }
+@media (min-width: 900px) { .hide-mobile { display: revert; } .hide-desktop { display: none; } }
+.text-muted { color: var(--c-text-muted); }
+.text-center { text-align: center; }
+.text-sm { font-size: var(--fs-sm); }
+.mt-0 { margin-top: 0; } .mb-0 { margin-bottom: 0; }
+.rg-notice { font-size: var(--fs-sm); color: var(--c-text-muted); border-top: 1px solid var(--c-border); padding-top: var(--s-3); }

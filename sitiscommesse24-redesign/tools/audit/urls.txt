@@ -1,0 +1,7 @@
+# Un percorso per riga, relativo a WP_BASE_URL. Le righe che iniziano con # sono ignorate.
+# Sostituire con le template reali dopo la prima visita al sito.
+/
+/bonus-scommesse/
+/siti-scommesse/
+/pronostici/
+/blog/

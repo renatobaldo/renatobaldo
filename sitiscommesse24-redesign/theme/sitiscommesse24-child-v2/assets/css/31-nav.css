@@ -1,0 +1,39 @@
+/* Mobile: pannello off-canvas da destra. Desktop (≥900): barra orizzontale nel header. */
+.nav {
+  position: fixed; inset: var(--header-h) 0 0 auto; width: min(85vw, 340px);
+  background: var(--c-surface); color: var(--c-text);
+  transform: translateX(100%); transition: transform .25s ease;
+  overflow-y: auto; z-index: 49; box-shadow: var(--shadow-2);
+}
+.nav.is-open { transform: none; }
+.nav__overlay { position: fixed; inset: var(--header-h) 0 0 0; background: rgb(15 23 42 / .5); z-index: 48; opacity: 0; pointer-events: none; transition: opacity .25s; }
+.nav.is-open + .nav__overlay { opacity: 1; pointer-events: auto; }
+.nav__list, .nav__sub { list-style: none; margin: 0; padding: 0; }
+.nav__link, .nav__sub-link {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-2);
+  min-height: 48px; padding: var(--s-3) var(--s-4);
+  color: inherit; text-decoration: none; font-weight: 600; border-bottom: 1px solid var(--c-border);
+}
+.nav__sub-link { font-weight: 500; padding-left: var(--s-8); background: var(--c-bg); }
+.nav__link:hover, .nav__sub-link:hover { background: var(--c-primary-100); color: var(--c-primary-700); }
+.nav__item--current > .nav__link { color: var(--c-primary); box-shadow: inset 3px 0 0 var(--c-primary); }
+.nav__sub { display: none; }
+.nav__item.is-open > .nav__sub { display: block; }
+.nav__chevron { width: 18px; height: 18px; transition: transform .2s; flex: none; }
+.nav__item.is-open > .nav__link .nav__chevron { transform: rotate(180deg); }
+
+@media (min-width: 900px) {
+  .nav { position: static; width: auto; transform: none; background: transparent; color: inherit; box-shadow: none; overflow: visible; }
+  .nav__overlay { display: none; }
+  .nav__list { display: flex; gap: var(--s-1); }
+  .nav__item { position: relative; }
+  .nav__link { min-height: var(--tap); padding: var(--s-2) var(--s-3); border: 0; border-radius: var(--r-sm); color: var(--c-header-text); }
+  .nav__link:hover, .nav__item--current > .nav__link { background: rgb(255 255 255 / .12); color: var(--c-header-text); box-shadow: none; }
+  .nav__sub {
+    position: absolute; top: 100%; left: 0; min-width: 240px;
+    background: var(--c-surface); color: var(--c-text); border-radius: var(--r-md); box-shadow: var(--shadow-2);
+    padding: var(--s-2) 0; display: none;
+  }
+  .nav__item:hover > .nav__sub, .nav__item:focus-within > .nav__sub, .nav__item.is-open > .nav__sub { display: block; }
+  .nav__sub-link { background: transparent; padding: var(--s-2) var(--s-4); min-height: 40px; border: 0; }
+}

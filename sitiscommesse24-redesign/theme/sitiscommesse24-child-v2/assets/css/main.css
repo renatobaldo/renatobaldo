@@ -1,0 +1,13 @@
+/* Ordine dei layer: chi viene dopo vince, senza !important. */
+@layer tokens, base, layout, components, utilities, overrides;
+
+@import url("00-tokens.css") layer(tokens);
+@import url("10-base.css") layer(base);
+@import url("20-layout.css") layer(layout);
+@import url("30-header.css") layer(components);
+@import url("31-nav.css") layer(components);
+@import url("40-odds-table.css") layer(components);
+@import url("41-bet-button.css") layer(components);
+@import url("42-bookmaker-card.css") layer(components);
+@import url("50-utilities.css") layer(utilities);
+/* 90-overrides.css: mappatura sul markup del tema padre, scritto in fase 2 dopo l'audit. */

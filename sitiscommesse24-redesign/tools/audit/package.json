@@ -1,0 +1,14 @@
+{
+  "name": "sitiscommesse24-audit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Audit in sola lettura di front-end e wp-admin dello staging di sitiscommesse24.com",
+  "scripts": {
+    "audit:frontend": "node audit-frontend.mjs",
+    "audit:wpadmin": "node audit-wpadmin.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.56.1"
+  }
+}

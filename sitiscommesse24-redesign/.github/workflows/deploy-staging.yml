@@ -1,0 +1,32 @@
+name: Deploy staging
+
+on:
+  push:
+    branches: [staging]
+    paths: ['theme/**', 'scripts/deploy.sh', '.github/workflows/deploy-staging.yml']
+  workflow_dispatch:
+
+concurrency: deploy-staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chiave SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SG_SSH_KEY }}" > ~/.ssh/sg_deploy
+          chmod 600 ~/.ssh/sg_deploy
+      - name: Deploy
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_USER: ${{ secrets.SG_USER }}
+          SG_PORT: ${{ vars.SG_PORT || '18765' }}
+          THEME_PATH: ${{ vars.STAGING_THEME_PATH }}
+          SSH_KEY: /home/runner/.ssh/sg_deploy
+          RSYNC_DELETE: ${{ vars.RSYNC_DELETE || 'false' }}
+        run: ./scripts/deploy.sh

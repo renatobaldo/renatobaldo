@@ -12,6 +12,9 @@ Stato: **fase 0 – setup**. L'analisi dello staging non è ancora stata eseguit
 | `docs/01-piano-operativo.md` | Piano in 5 fasi, decisioni da prendere, rischi, regole di lavoro staging → produzione |
 | `docs/02-audit-staging.md` | Cosa estrae l'audit, come lanciarlo, cosa guardare nei risultati |
 | `docs/03-design-system.md` | Token (colori, spazi, tipografia), breakpoint, specifiche dei componenti |
+| `docs/05-setup-accessi.md` | Guida passo-passo: repository GitHub, rete Claude, chiave SSH SiteGround, deploy automatico |
+| `.github/workflows/` | Deploy del child theme su staging (ogni push su `staging`) e produzione (con approvazione manuale) |
+| `scripts/deploy.sh` | rsync del child theme via SSH + svuotamento cache SiteGround |
 | `tools/audit/` | Script Playwright: audit front-end (CSS, performance, screenshot) e audit wp-admin (tema, plugin, Site Health) |
 | `theme/sitiscommesse24-child-v2/` | Nuovo CSS del child theme (cascade layers, mobile-first) + pagina di anteprima dei componenti |
 

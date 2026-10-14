@@ -97,7 +97,7 @@ Ordine per impatto su mobile e conversione:
 
 ---
 
-## Cosa serve da te
+## Cosa serve da te (passo-passo in `docs/05-setup-accessi.md`)
 
 1. **Rete**: nelle impostazioni dell'ambiente cloud (menu ambiente nella barra del titolo → Edit →
    Network access) aggiungere ai domini consentiti

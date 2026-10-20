@@ -1,0 +1,94 @@
+name: Audit staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: URL del sito da analizzare (vuoto = variabile STAGING_URL del repository)
+        required: false
+      run_wpadmin:
+        description: Esegui anche l'audit wp-admin (login)
+        type: boolean
+        default: false
+
+concurrency: audit
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HAS_WP_PASS: ${{ secrets.WP_PASS != '' }}
+      BASE_URL: ${{ inputs.base_url || vars.STAGING_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dipendenze
+        working-directory: tools/audit
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium firefox webkit
+          npm install --no-save lighthouse@12
+      - name: Raggiungibilità
+        run: |
+          [ -n "$BASE_URL" ] || { echo "BASE_URL mancante"; exit 1; }
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "$BASE_URL/"
+      - name: Audit front-end
+        working-directory: tools/audit
+        env:
+          WP_BASE_URL: ${{ env.BASE_URL }}
+          AUDIT_DISCOVER: '1'
+          HTTP_AUTH_USER: ${{ secrets.HTTP_AUTH_USER }}
+          HTTP_AUTH_PASS: ${{ secrets.HTTP_AUTH_PASS }}
+        run: node audit-frontend.mjs
+      - name: Audit wp-admin (solo se richiesto e se i secrets WP_USER/WP_PASS esistono)
+        if: ${{ inputs.run_wpadmin && env.HAS_WP_PASS == 'true' }}
+        continue-on-error: true
+        working-directory: tools/audit
+        env:
+          WP_BASE_URL: ${{ env.BASE_URL }}
+          WP_USER: ${{ secrets.WP_USER }}
+          WP_PASS: ${{ secrets.WP_PASS }}
+          HTTP_AUTH_USER: ${{ secrets.HTTP_AUTH_USER }}
+          HTTP_AUTH_PASS: ${{ secrets.HTTP_AUTH_PASS }}
+        run: node audit-wpadmin.mjs
+      - name: Lighthouse mobile (4G simulato)
+        if: always()
+        working-directory: tools/audit
+        env:
+          WP_BASE_URL: ${{ env.BASE_URL }}
+        run: node lighthouse.mjs || true
+      - name: Screenshot Firefox e WebKit
+        if: always()
+        working-directory: tools/audit
+        env:
+          WP_BASE_URL: ${{ env.BASE_URL }}
+        run: node browsers.mjs || true
+      - name: Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-output
+          path: tools/audit/output
+          if-no-files-found: warn
+      - name: Pubblica i risultati sul branch audit-results
+        if: always()
+        run: |
+          set -e
+          [ -d tools/audit/output ] || { echo "nessun output"; exit 0; }
+          cp -r tools/audit/output /tmp/audit-output
+          git config user.name "audit-bot"
+          git config user.email "audit-bot@users.noreply.github.com"
+          git checkout --orphan audit-results
+          git rm -rfq . || true
+          git clean -fdxq
+          cp -r /tmp/audit-output/. .
+          printf 'Risultati audit del %s su %s\nRun: %s\n' "$(date -u +%FT%TZ)" "$BASE_URL" "${{ github.run_id }}" > RUN.txt
+          git add -A
+          git commit -qm "Audit $BASE_URL $(date -u +%FT%TZ)"
+          git push -f origin audit-results

@@ -1,0 +1,60 @@
+name: Fetch theme from SiteGround
+
+on:
+  workflow_dispatch:
+    inputs:
+      staging_domain:
+        description: Dominio dello staging (vuoto = variabile STAGING_DOMAIN del repository)
+        required: false
+
+permissions:
+  contents: write
+
+concurrency: fetch-theme
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      STAGING_DOMAIN: ${{ inputs.staging_domain || vars.STAGING_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chiave SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SG_SSH_KEY }}" > ~/.ssh/sg_deploy
+          chmod 600 ~/.ssh/sg_deploy
+          if [ -n "${{ secrets.SG_SSH_PASSPHRASE }}" ]; then
+            ssh-keygen -p -P "${{ secrets.SG_SSH_PASSPHRASE }}" -N "" -f ~/.ssh/sg_deploy >/dev/null
+          fi
+          ssh-keygen -y -f ~/.ssh/sg_deploy >/dev/null && echo "chiave valida"
+      - name: Inventario server (sola lettura)
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_USER: ${{ secrets.SG_USER }}
+          SG_PORT: ${{ vars.SG_PORT || '18765' }}
+        run: |
+          [ -n "$STAGING_DOMAIN" ] || { echo "STAGING_DOMAIN mancante"; exit 1; }
+          mkdir -p legacy
+          ssh -i ~/.ssh/sg_deploy -p "$SG_PORT" -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 "$SG_USER@$SG_HOST" "STAGING_DOMAIN='$STAGING_DOMAIN' bash -s" < scripts/server-inventory.sh | tee legacy/server-inventory.txt
+      - name: Scarica i temi
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_USER: ${{ secrets.SG_USER }}
+          SG_PORT: ${{ vars.SG_PORT || '18765' }}
+        run: |
+          scp -i ~/.ssh/sg_deploy -P "$SG_PORT" -o StrictHostKeyChecking=accept-new "$SG_USER@$SG_HOST:/tmp/themes-staging.tgz" /tmp/themes-staging.tgz
+          rm -rf legacy/themes && mkdir -p legacy/themes
+          tar -xzf /tmp/themes-staging.tgz -C legacy/themes
+          ssh -i ~/.ssh/sg_deploy -p "$SG_PORT" "$SG_USER@$SG_HOST" 'rm -f /tmp/themes-staging.tgz'
+          du -sh legacy/themes/*
+      - name: Commit in legacy/
+        run: |
+          git config user.name "audit-bot"
+          git config user.email "audit-bot@users.noreply.github.com"
+          git add legacy
+          git diff --cached --quiet && { echo "nessuna modifica"; exit 0; }
+          git commit -qm "legacy: inventario server e temi scaricati dallo staging $(date -u +%FT%TZ)"
+          git pull --rebase -q origin main
+          git push origin HEAD:main

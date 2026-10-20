@@ -1,0 +1,39 @@
+name: Server check
+
+on:
+  workflow_dispatch:
+    inputs:
+      staging_domain:
+        description: Dominio su cui eseguire (vuoto = variabile STAGING_DOMAIN; in produzione passare il dominio live)
+        required: false
+      script:
+        description: Script in scripts/ da eseguire sul server
+        default: server-check.sh
+        required: true
+      minutes:
+        description: Durata massima del job in minuti
+        default: "10"
+        required: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(inputs.minutes || '10') }}
+    env:
+      STAGING_DOMAIN: ${{ inputs.staging_domain || vars.STAGING_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chiave SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SG_SSH_KEY }}" > ~/.ssh/sg_deploy
+          chmod 600 ~/.ssh/sg_deploy
+          if [ -n "${{ secrets.SG_SSH_PASSPHRASE }}" ]; then ssh-keygen -p -P "${{ secrets.SG_SSH_PASSPHRASE }}" -N "" -f ~/.ssh/sg_deploy >/dev/null; fi
+      - name: Esecuzione dal server
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_USER: ${{ secrets.SG_USER }}
+          SG_PORT: ${{ vars.SG_PORT || '18765' }}
+        run: |
+          [ -n "$STAGING_DOMAIN" ] || { echo "STAGING_DOMAIN mancante"; exit 1; }
+          ssh -i ~/.ssh/sg_deploy -p "$SG_PORT" -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 "$SG_USER@$SG_HOST" "STAGING_DOMAIN='$STAGING_DOMAIN' MAX_MINUTES='${{ inputs.minutes }}' bash -s" < "scripts/${{ inputs.script }}"

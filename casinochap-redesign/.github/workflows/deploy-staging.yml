@@ -1,0 +1,37 @@
+name: Deploy staging
+
+on:
+  push:
+    branches: [staging]
+    paths: ['theme/**', 'scripts/deploy.sh', '.github/workflows/deploy-staging.yml']
+  workflow_dispatch:
+
+concurrency: deploy-staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ vars.STAGING_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Chiave SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SG_SSH_KEY }}" > ~/.ssh/sg_deploy
+          chmod 600 ~/.ssh/sg_deploy
+          # SiteGround genera chiavi con passphrase: la rimuovo sul runner, in memoria, per usarla con rsync
+          if [ -n "${{ secrets.SG_SSH_PASSPHRASE }}" ]; then
+            ssh-keygen -p -P "${{ secrets.SG_SSH_PASSPHRASE }}" -N "" -f ~/.ssh/sg_deploy >/dev/null
+          fi
+      - name: Deploy
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_USER: ${{ secrets.SG_USER }}
+          SG_PORT: ${{ vars.SG_PORT || '18765' }}
+          THEME_PATH: ${{ vars.STAGING_THEME_PATH }}
+          SRC: ${{ vars.THEME_SRC || 'theme/casinochap-child/' }}
+          SSH_KEY: /home/runner/.ssh/sg_deploy
+          RSYNC_DELETE: ${{ vars.RSYNC_DELETE || 'false' }}
+        run: ./scripts/deploy.sh

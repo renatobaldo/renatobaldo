@@ -1,0 +1,16 @@
+{
+  "name": "casinochap-audit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Audit in sola lettura di front-end e wp-admin dello staging di casinochap.com",
+  "scripts": {
+    "audit:lighthouse": "node lighthouse.mjs",
+    "audit:browsers": "node browsers.mjs",
+    "audit:frontend": "node audit-frontend.mjs",
+    "audit:wpadmin": "node audit-wpadmin.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.56.1"
+  }
+}

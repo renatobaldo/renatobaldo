@@ -1,0 +1,4 @@
+# Un percorso per riga, relativo a WP_BASE_URL. Le righe che iniziano con # sono ignorate.
+# Con AUDIT_DISCOVER=1 lo script aggiunge da solo le pagine del menu della home (fino a 14 URL totali).
+# Da completare dopo l'inventario: una recensione casinò, una pagina bonus, un articolo, una pagina statica.
+/

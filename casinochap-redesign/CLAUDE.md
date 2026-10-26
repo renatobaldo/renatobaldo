@@ -26,5 +26,13 @@ modifica → test locale (tools/audit, Playwright con Chromium in `/opt/pw-brows
 
 ## Stato
 - Fase 0 (setup): kit creato, accessi da completare (vedi `docs/01-setup-accessi.md`).
-- Dati ancora da raccogliere: dominio staging, nome del tema padre e del child, percorsi sul server,
+- Staging: `https://staging2.casinochap.com/` (variabile `STAGING_DOMAIN=staging2.casinochap.com`). Produzione: `casinochap.com`.
+- Rilevato il 26/10/2026 dalla sandbox (solo lettura): il certificato HTTPS dello staging è **scaduto dal 13/09/2025**
+  (Let's Encrypt, wildcard `*.staging2.casinochap.com`); quello di produzione è valido fino al 22/12/2026.
+  Finché non viene rinnovato, curl/Playwright vanno in errore: rinnovo in Site Tools → Security → SSL Manager,
+  oppure variabile `AUDIT_INSECURE_TLS=1` (solo audit, mai per il deploy).
+- Rilevato: le risposte dello staging hanno gli header `sg-captcha` e `host-header` e l'IP è nella rete usata da SiteGround.
+  Probabile SiteGround (forse un account diverso da sitiscommesse24); Renato ha detto "altro hosting": da confermare.
+  Dalla sandbox la home risponde con la challenge anti-bot (HTTP 202): le verifiche affidabili passano da `server-check.yml`.
+- Dati ancora da raccogliere: nome del tema padre e del child, percorsi sul server,
   elenco plugin, post type delle recensioni casinò. Si ottengono con `fetch-theme.yml` e l'audit.

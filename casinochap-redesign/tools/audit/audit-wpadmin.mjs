@@ -5,7 +5,7 @@
 import { chromium } from 'playwright';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { loadEnv, requireEnv, outDir, writeJson, httpCredentials, passSiteGroundChallenge, UA_DESKTOP } from './lib.mjs';
+import { loadEnv, requireEnv, outDir, writeJson, httpCredentials, passSiteGroundChallenge, UA_DESKTOP, tlsOptions } from './lib.mjs';
 
 loadEnv();
 requireEnv(['WP_BASE_URL', 'WP_USER', 'WP_PASS']);
@@ -15,7 +15,7 @@ const shots = outDir('wpadmin/screenshots');
 const childDir = outDir('wpadmin/child-theme');
 
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, httpCredentials: httpCredentials(), userAgent: UA_DESKTOP });
+const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, httpCredentials: httpCredentials(), userAgent: UA_DESKTOP, ...tlsOptions() });
 const page = await context.newPage();
 
 async function shot(name) { await page.screenshot({ path: resolve(shots, `${name}.png`), fullPage: true }); }

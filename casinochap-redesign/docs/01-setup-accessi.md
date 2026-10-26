@@ -6,12 +6,45 @@ di domini e di secrets (vedi le note "Se riusi…").
 
 ---
 
+## Punto di partenza verificato (26/10/2026)
+
+| Dato | Valore | Come l'ho verificato |
+|---|---|---|
+| Staging | `https://staging2.casinochap.com/` | indicato da Renato; DNS risolve a `35.214.176.77` |
+| Produzione | `casinochap.com` | DNS risolve a più IP, certificato valido fino al 22/12/2026 |
+| Certificato staging | **scaduto il 13/09/2025** | ispezione del certificato (Let's Encrypt, wildcard `*.staging2.casinochap.com`) |
+| Hosting | indizi SiteGround: header `sg-captcha`, `host-header`, `x-proxy-cache-info` | header HTTP; Renato ha scritto "altro hosting", quindi **da confermare** |
+| Accesso dalla sandbox | la home risponde HTTP 202 con challenge anti-bot | `curl` in chiaro |
+
+### Staging: certificato scaduto (da sistemare prima di tutto)
+
+Un certificato scaduto da oltre un anno fa mostrare l'avviso di sicurezza a chiunque apra lo staging e
+blocca curl, Playwright e Lighthouse. Soluzione corretta (2 minuti): Site Tools del sito → **Security** →
+**SSL Manager** → rinnova/reinstalla Let's Encrypt per `staging2.casinochap.com` (se il pannello è diverso,
+vale lo stesso principio sul pannello dell'hosting).
+
+Soluzione provvisoria, solo per gli audit: variabile GitHub `AUDIT_INSECURE_TLS` = `1`. Non riguarda il deploy,
+che usa SSH e non HTTPS. Si toglie appena il certificato è rinnovato.
+
+### Se l'hosting è SiteGround ma un account diverso da sitiscommesse24
+
+Chiave SSH, hostname e username sono **per account**: non vanno riusati quelli di sitiscommesse24. Si genera
+una nuova chiave dal Site Tools del sito casinochap (blocco C1) e si inseriscono i secrets nel nuovo repository.
+
+### Se l'hosting NON è SiteGround
+
+Servono: accesso SSH con rsync (o SFTP), WP-CLI sul server, percorso della cartella `wp-content/themes/`.
+`deploy.sh` funziona con qualunque host SSH+rsync cambiando `SG_PORT` e il comando di cache; lo svuotamento cache
+(`wp sg purge`) è specifico SiteGround e verrebbe sostituito da quello del plugin di cache in uso.
+
+---
+
 ## A. Repository GitHub (5 minuti)
 
 L'app GitHub usata dalle sessioni Claude non può creare repository. Lo crei tu, poi dai accesso all'app.
 
 1. Vai su https://github.com/new
-   - Repository name: `casinochap-redesign`
+   - Repository name: `casinochap-redesign` (nome confermato da Renato)
    - Visibility: **Private**
    - Non spuntare "Add a README" (il contenuto arriva da questo kit)
    - Create repository
@@ -33,7 +66,7 @@ Senza questo passaggio l'agente non raggiunge né il sito né il wp-admin.
    così le variabili non si mischiano). Oppure modifica l'ambiente esistente.
 3. **Network access** → **Custom**. In **Allowed domains**, una riga per dominio:
    ```
-   <dominio staging casinochap>
+   staging2.casinochap.com
    casinochap.com
    www.casinochap.com
    *.siteground.com
@@ -41,7 +74,7 @@ Senza questo passaggio l'agente non raggiunge né il sito né il wp-admin.
    Spunta **Also include default list of common package managers**.
 4. **Environment variables** (formato .env), solo valori non segreti:
    ```
-   WP_BASE_URL=https://<dominio staging casinochap>
+   WP_BASE_URL=https://staging2.casinochap.com
    WP_USER=<utente wp-admin dedicato>
    ```
    La password **non** va qui. Passala in chat quando serve e cambiala a fine progetto, oppure usa
@@ -63,12 +96,11 @@ esegue GitHub Actions, quindi funziona anche se la sandbox Claude non può aprir
 ### C0. Lo staging esiste?
 
 Site Tools → **WordPress** → **Staging**. Se casinochap non ha ancora una copia di staging: **Create**,
-annota il dominio generato (tipo `staging1.casinochap.com` o `staging13.www10...`). Tutto il lavoro
-avviene lì.
+conferma che il dominio sia `staging2.casinochap.com`. Tutto il lavoro avviene lì.
 
 ### C1. Chiave SSH
 
-Se casinochap è **nello stesso account SiteGround** di sitiscommesse24: la chiave `github-actions-deploy`
+Se si scopre che casinochap è **nello stesso account SiteGround** di sitiscommesse24: la chiave `github-actions-deploy`
 già creata vale per tutti i siti dell'account; salta a C2 e riusa gli stessi valori di `SG_SSH_KEY`,
 `SG_SSH_PASSPHRASE`, `SG_HOST`, `SG_USER` (controlla in SSH Keys Manager → SSH Credentials che hostname e
 username siano gli stessi anche per questo sito).
@@ -102,9 +134,10 @@ Variables:
 | Nome | Valore |
 |---|---|
 | `SG_PORT` | `18765` |
-| `STAGING_DOMAIN` | dominio dello staging, senza `https://` |
-| `STAGING_URL` | `https://` + dominio dello staging |
-| `PROD_URL` | `https://casinochap.com` (o `https://www.casinochap.com`, quello canonico) |
+| `STAGING_DOMAIN` | `staging2.casinochap.com` |
+| `STAGING_URL` | `https://staging2.casinochap.com` |
+| `PROD_URL` | `https://casinochap.com` (o `https://www.casinochap.com`, quello canonico: da verificare) |
+| `AUDIT_INSECURE_TLS` | `1` solo finché il certificato dello staging non è rinnovato |
 | `STAGING_THEME_PATH` | percorso child theme staging (dopo C2, lo dico io) |
 | `PROD_THEME_PATH` | percorso child theme produzione (dopo C2, lo dico io) |
 | `THEME_SRC` | cartella locale del child da pubblicare, es. `theme/casinochap-child/` (dopo la fase 1) |

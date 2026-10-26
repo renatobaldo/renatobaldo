@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 import { writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadEnv, requireEnv, outDir, writeJson, slug, httpCredentials, readUrls, passSiteGroundChallenge, UA_DESKTOP, UA_MOBILE } from './lib.mjs';
+import { loadEnv, requireEnv, outDir, writeJson, slug, httpCredentials, readUrls, passSiteGroundChallenge, UA_DESKTOP, UA_MOBILE, tlsOptions } from './lib.mjs';
 
 loadEnv();
 requireEnv(['WP_BASE_URL']);
@@ -26,7 +26,7 @@ let cookies = []; // cookie della challenge SiteGround, riusati tra i contesti
 // Scoperta: aggiunge alla lista fino a 8 link interni del menu della home (AUDIT_DISCOVER=1)
 if (process.env.AUDIT_DISCOVER === '1') {
   try {
-    const ctx = await browser.newContext({ httpCredentials: httpCredentials(), userAgent: UA_DESKTOP });
+    const ctx = await browser.newContext({ httpCredentials: httpCredentials(), userAgent: UA_DESKTOP, ...tlsOptions() });
     const p = await ctx.newPage();
     await p.goto(BASE + '/', { waitUntil: 'networkidle', timeout: 60000 });
     await passSiteGroundChallenge(p);
@@ -49,6 +49,7 @@ for (const url of urls) {
     hasTouch: true,
     httpCredentials: httpCredentials(),
     userAgent: UA_MOBILE,
+    ...tlsOptions(),
   });
   if (cookies.length) await context.addCookies(cookies);
   const page = await context.newPage();

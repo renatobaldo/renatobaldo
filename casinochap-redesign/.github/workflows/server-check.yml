@@ -21,6 +21,7 @@ jobs:
     timeout-minutes: ${{ fromJSON(inputs.minutes || '10') }}
     env:
       STAGING_DOMAIN: ${{ inputs.staging_domain || vars.STAGING_DOMAIN }}
+      AUDIT_INSECURE_TLS: ${{ vars.AUDIT_INSECURE_TLS }}
     steps:
       - uses: actions/checkout@v4
       - name: Chiave SSH
@@ -36,4 +37,4 @@ jobs:
           SG_PORT: ${{ vars.SG_PORT || '18765' }}
         run: |
           [ -n "$STAGING_DOMAIN" ] || { echo "STAGING_DOMAIN mancante"; exit 1; }
-          ssh -i ~/.ssh/sg_deploy -p "$SG_PORT" -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 "$SG_USER@$SG_HOST" "STAGING_DOMAIN='$STAGING_DOMAIN' MAX_MINUTES='${{ inputs.minutes }}' bash -s" < "scripts/${{ inputs.script }}"
+          ssh -i ~/.ssh/sg_deploy -p "$SG_PORT" -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 "$SG_USER@$SG_HOST" "STAGING_DOMAIN='$STAGING_DOMAIN' MAX_MINUTES='${{ inputs.minutes }}' AUDIT_INSECURE_TLS='$AUDIT_INSECURE_TLS' bash -s" < "scripts/${{ inputs.script }}"

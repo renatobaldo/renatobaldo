@@ -73,3 +73,11 @@ export async function passSiteGroundChallenge(page) {
 /** User agent realistici: alcuni controlli anti-bot bloccano "HeadlessChrome". */
 export const UA_DESKTOP = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 export const UA_MOBILE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
+
+/**
+ * Staging con certificato scaduto: AUDIT_INSECURE_TLS=1 ignora gli errori HTTPS nelle sole sessioni di audit.
+ * Di default è spento: la soluzione corretta è rinnovare il certificato in Site Tools → Security → SSL Manager.
+ */
+export function tlsOptions() {
+  return process.env.AUDIT_INSECURE_TLS === '1' ? { ignoreHTTPSErrors: true } : {};
+}

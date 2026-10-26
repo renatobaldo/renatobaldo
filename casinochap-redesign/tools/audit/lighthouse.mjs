@@ -26,7 +26,7 @@ for (const p of paths) {
   const json = resolve(out, `${name}.json`);
   const args = [url, '--output=json', `--output-path=${json}`, '--preset=perf', '--form-factor=mobile',
     '--screenEmulation.mobile', '--throttling-method=simulate', '--quiet',
-    '--chrome-flags=--headless=new --no-sandbox --disable-gpu'];
+    '--chrome-flags=--headless=new --no-sandbox --disable-gpu' + (process.env.AUDIT_INSECURE_TLS === '1' ? ' --ignore-certificate-errors' : '')];
   args.push(`--extra-headers=${JSON.stringify(cookieHeader ? { Cookie: cookieHeader, 'User-Agent': UA_MOBILE } : { 'User-Agent': UA_MOBILE })}`);
   args.push(`--emulatedUserAgent=${UA_MOBILE}`);
   console.log(`→ lighthouse ${url}`);

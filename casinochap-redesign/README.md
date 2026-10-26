@@ -4,8 +4,8 @@ Progetto di messa in ordine di **casinochap.com** con lo stesso metodo usato per
 lavoro **solo sul child theme**, tema padre intoccabile, tutto passa dallo staging, produzione solo con
 approvazione manuale su GitHub.
 
-Stato: **fase 0 – setup**. Lo staging non è ancora stato analizzato: prima servono gli accessi
-(vedi `docs/01-setup-accessi.md`).
+Stato: **fase 0 – setup**. Staging: https://staging2.casinochap.com/. Lo staging non è ancora stato analizzato:
+prima servono gli accessi (vedi `docs/01-setup-accessi.md`).
 
 ## Struttura
 

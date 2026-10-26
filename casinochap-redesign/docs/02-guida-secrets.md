@@ -31,7 +31,7 @@ Link diretto: https://github.com/renatobaldo/casinochap-redesign/settings/secret
 
 ### 4a. Chiave privata
 
-Se casinochap sta nello stesso account SiteGround di sitiscommesse24, i quattro valori sono gli stessi
+Se casinochap sta nello stesso account SiteGround di sitiscommesse24 (da verificare: Renato ha indicato un altro hosting), i quattro valori sono gli stessi
 già usati in quel repository: ricopiali (la chiave privata va ripresa da Site Tools, GitHub non la mostra).
 
 Altrimenti: https://my.siteground.com → **Websites** → sito casinochap → **Site Tools** → **Devs** →
@@ -54,9 +54,10 @@ Scheda **Variables** → **New repository variable**, una alla volta:
 | Name | Value |
 |---|---|
 | `SG_PORT` | `18765` |
-| `STAGING_DOMAIN` | dominio dello staging, senza `https://` |
-| `STAGING_URL` | `https://` + dominio dello staging |
+| `STAGING_DOMAIN` | `staging2.casinochap.com` |
+| `STAGING_URL` | `https://staging2.casinochap.com` |
 | `PROD_URL` | URL canonico di casinochap.com |
+| `AUDIT_INSECURE_TLS` | `1`, solo finché il certificato dello staging è scaduto (vedi docs/01) |
 
 `STAGING_THEME_PATH`, `PROD_THEME_PATH` e `THEME_SRC` si aggiungono dopo: i valori te li do io dal
 workflow `fetch-theme.yml`.
@@ -64,7 +65,7 @@ workflow `fetch-theme.yml`.
 ## Parte 6 – Verifica finale
 
 Scheda Secrets: 6 righe (`SG_HOST`, `SG_SSH_KEY`, `SG_SSH_PASSPHRASE`, `SG_USER`, `WP_PASS`, `WP_USER`).
-Scheda Variables: 4 righe (`PROD_URL`, `SG_PORT`, `STAGING_DOMAIN`, `STAGING_URL`).
+Scheda Variables: 5 righe (`AUDIT_INSECURE_TLS`, `PROD_URL`, `SG_PORT`, `STAGING_DOMAIN`, `STAGING_URL`).
 Poi scrivi in chat "secrets fatti": lancio io `fetch-theme.yml` e l'audit e, se qualcosa non torna, lo vedo
 dai log e ti dico cosa correggere.
 

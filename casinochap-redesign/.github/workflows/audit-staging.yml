@@ -23,6 +23,8 @@ jobs:
     env:
       HAS_WP_PASS: ${{ secrets.WP_PASS != '' }}
       BASE_URL: ${{ inputs.base_url || vars.STAGING_URL }}
+      # Solo se il certificato dello staging è scaduto e non è ancora stato rinnovato (variabile AUDIT_INSECURE_TLS=1)
+      AUDIT_INSECURE_TLS: ${{ vars.AUDIT_INSECURE_TLS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,7 +39,7 @@ jobs:
       - name: Raggiungibilità
         run: |
           [ -n "$BASE_URL" ] || { echo "BASE_URL mancante"; exit 1; }
-          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "$BASE_URL/"
+          curl -sS -o /dev/null -w "HTTP %{http_code}\n" "$BASE_URL/" || echo "curl ha fallito (certificato scaduto? vedi docs/01-setup-accessi.md, sezione Staging)"
       - name: Audit front-end
         working-directory: tools/audit
         env:

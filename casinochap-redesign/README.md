@@ -4,14 +4,15 @@ Progetto di messa in ordine di **casinochap.com** con lo stesso metodo usato per
 lavoro **solo sul child theme**, tema padre intoccabile, tutto passa dallo staging, produzione solo con
 approvazione manuale su GitHub.
 
-Stato: **fase 0 – setup**. Staging: https://staging2.casinochap.com/. Lo staging non è ancora stato analizzato:
+Stato: **fase 0 – setup**. Staging: https://staging12.casinochap.com/. Lo staging non è ancora stato analizzato:
 prima servono gli accessi (vedi `docs/01-setup-accessi.md`).
 
 ## Struttura
 
 | Percorso | Contenuto |
 |---|---|
-| `docs/01-setup-accessi.md` | Guida passo-passo: repository GitHub, rete Claude, chiave SSH SiteGround, deploy automatico |
+| `docs/00-GUIDA-FACILE.md` | **Parti da qui**: i cinque passaggi che deve fare Renato |
+| `docs/01-setup-accessi.md` | Dettaglio di riferimento: repository GitHub, rete Claude, chiave SSH SiteGround, deploy automatico |
 | `docs/02-guida-secrets.md` | Dove e come inserire secrets e variabili su GitHub |
 | `docs/03-audit-staging.md` | Cosa estrae l'audit, come lanciarlo, cosa guardare nei risultati |
 | `.github/workflows/` | Deploy su staging (ogni push su `staging`), deploy produzione (approvazione manuale), download temi, audit, comandi sul server |
